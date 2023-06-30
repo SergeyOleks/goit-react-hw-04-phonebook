@@ -28,8 +28,11 @@ const App = () => {
 
   const formSubmitHandler = event => {
     event.preventDefault();
-    const id = nanoid();    
-    const { 0: { value: name }, 1: { value:number } } = event.currentTarget;
+    const id = nanoid();
+    const {
+      0: { value: name },
+      1: { value: number },
+    } = event.currentTarget;
     const data = { id, name, number };
 
     if (
@@ -63,8 +66,6 @@ const App = () => {
       contacts.filter(el => el.name.toLowerCase().includes(value.toLowerCase()))
     );
   };
-
-  console.log(contacts);
 
   return (
     <div className={css.app}>
