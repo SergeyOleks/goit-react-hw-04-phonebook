@@ -11,7 +11,6 @@ const App = () => {
   const [filterContacts, setFilterContacts] = useState([]);
 
   useEffect(() => {
-    console.log('componentDidMount');
     try {
       const localStorageContacts = JSON.parse(localStorage.getItem('contacts'));
       setContacts(localStorageContacts);
@@ -20,7 +19,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    console.log('componentDidUpdate');
     contacts.length > 0 &&
       localStorage.setItem('contacts', JSON.stringify(contacts));
     // setFilterContacts(contacts);
