@@ -21,7 +21,6 @@ const App = () => {
   useEffect(() => {
     contacts.length > 0 &&
       localStorage.setItem('contacts', JSON.stringify(contacts));
-    // setFilterContacts(contacts);
   }, [contacts]);
 
   const formSubmitHandler = event => {
