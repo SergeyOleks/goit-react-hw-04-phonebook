@@ -1,84 +1,82 @@
 import css from './App.module.css';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
+import { nanoid } from 'nanoid';
 
 import ContactList from '../ContactList/ContactList';
 import ContactForm from '../ContactForm/ContactForm';
 import Filter from '../Filter/Filter';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filterContacts, setFilterContacts] = useState([]);
 
-  componentDidMount() {
-    // const { contacts } = this.state;
+  useEffect(() => {
+    console.log('componentDidMount');
     try {
       const localStorageContacts = JSON.parse(localStorage.getItem('contacts'));
-
-      if (localStorageContacts.length > 0) {
-        this.filterContacts = localStorageContacts;
-        this.setState({ contacts: localStorageContacts });
-      }
+      setContacts(localStorageContacts);
+      setFilterContacts(localStorageContacts);
     } catch (err) {}
-  }
+  }, []);
 
-  componentDidUpdate(prevProps, prevState) {
-    const { contacts } = this.state;
-    if (contacts !== prevState.contact) {
+  useEffect(() => {
+    console.log('componentDidUpdate');
+    contacts.length > 0 &&
       localStorage.setItem('contacts', JSON.stringify(contacts));
+    // setFilterContacts(contacts);
+  }, [contacts]);
+
+  const formSubmitHandler = event => {
+    event.preventDefault();
+    const id = nanoid();    
+    const { 0: { value: name }, 1: { value:number } } = event.currentTarget;
+    const data = { id, name, number };
+
+    if (
+      contacts.length > 0 &&
+      contacts.some(contact => contact.name === data.name)
+    ) {
+      alert(`${data.name} is alredy in contact`);
+      return;
     }
-  }
-
-  filterContacts = this.state.contacts;
-
-  handleFilterQuery = event => {
-    const { value } = event.currentTarget;
-    const { contacts } = this.state;
-    this.setState({ filter: value });
-
-    this.filterContacts = contacts.filter(el =>
-      el.name.toLowerCase().includes(value.toLowerCase())
-    );
+    setContacts([...contacts, data]);
+    setFilterContacts([...filterContacts, data]);
   };
 
-  handleDelItem = event => {
-    const { contacts } = this.state;
+  const handleDelItem = event => {
     const { name } = event.currentTarget;
-
-    let delEl = contacts.findIndex(({ id }) => id === name);
-    contacts.splice(delEl, 1);
-    delEl = this.filterContacts.findIndex(({ id }) => id === name);
-    this.filterContacts.splice(delEl, 1);
-    this.setState({ contacts });
-  };
-
-  formSubmitHandler = data => {
-    const { contacts } = this.state;
-    const findElement = contacts.some(contact => contact.name === data.name);
-    findElement
-      ? alert(`${data.name} is alredy in contact`)
-      : contacts.push(data);
-    this.setState({ contacts });
-    this.filterContacts = contacts;
-  };
-
-  render() {
-    // const { contacts } = this.state;
-
-    return (
-      <div className={css.app}>
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.formSubmitHandler} />
-        <h2>Contacts</h2>
-        <Filter onChange={this.handleFilterQuery} />
-        <ContactList
-          contacts={this.filterContacts}
-          onClick={this.handleDelItem}
-        />
-      </div>
+    contacts.splice(
+      contacts.findIndex(({ id }) => id === name),
+      1
     );
-  }
-}
+    setContacts([...contacts]);
+    filterContacts.splice(
+      filterContacts.findIndex(({ id }) => id === name),
+      1
+    );
+    setFilterContacts([...filterContacts]);
+  };
+
+  const handleFilterQuery = event => {
+    const { value } = event.currentTarget;
+    setFilterContacts(
+      contacts.filter(el => el.name.toLowerCase().includes(value.toLowerCase()))
+    );
+  };
+
+  console.log(contacts);
+
+  return (
+    <div className={css.app}>
+      <h1>Phonebook</h1>
+      <ContactForm onFormSubmit={formSubmitHandler} />
+      <h2>Contacts</h2>
+      <Filter onChange={handleFilterQuery} />
+      {contacts.length > 0 && (
+        <ContactList contacts={filterContacts} onClick={handleDelItem} />
+      )}
+    </div>
+  );
+};
 
 export default App;
